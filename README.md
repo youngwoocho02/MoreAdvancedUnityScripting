@@ -1,63 +1,58 @@
-# [MoreAdvancedUnityScripting](https://github.com/youngwoocho02/MoreAdvancedUnityScripting)
+# MoreAdvancedUnityScripting
 
 An enhanced Unity scripting package that leverages modern C# patterns to prevent null exceptions and help you write more robust code.
 
-# What is MoreAdvancedUnityScripting? And Why Should You Use It?
+## What is MoreAdvancedUnityScripting?
 
-The main reason to use this package is to **significantly improve the safety and reliability of your code**. Traditional Unity development often suffers from the following common issues:
+`MoreAdvancedUnityScripting` is a utility package designed to integrate modern C# programming patterns into your Unity projects. It provides a suite of tools focused on functional-style error handling, helping you write safer, more predictable, and highly maintainable code.
 
-* **Risk of NullReferenceException**: Missing inspector assignments or destroyed objects at runtime frequently cause `NullReferenceException`, one of the most common and frustrating bugs.
-* **Inconsistent error handling**: Error handling scattered inconsistently across the codebase—sometimes using `if (obj == null)`, other times `try-catch`—reduces code readability and maintainability.
-* **Repetitive boilerplate code**: Writing repetitive error handling code increases the chance of mistakes and slows down development.
+## Why Use It?
 
-`MoreAdvancedUnityScripting` addresses these problems clearly and effectively:
+The primary reason to use this package is to **significantly improve the safety and reliability of your codebase**. Traditional Unity development often struggles with common pitfalls that this package directly addresses:
 
-## 1. Explicit and Reliable Error Handling (Result Pattern)  
-By expressing the possibility of failure in the return type (`Result`), it forces developers to **handle both success and failure cases explicitly**. This prevents runtime crashes caused by unhandled exceptions and makes the code flow more predictable.
+*   **Risk of `NullReferenceException`**: This is one of the most frequent bugs in Unity, often caused by missed inspector assignments or objects destroyed at runtime.
+*   **Inconsistent Error Handling**: Logic is often scattered between `if (obj == null)` checks and `try-catch` blocks, reducing code readability and maintainability.
+*   **Repetitive Boilerplate Code**: Writing the same null checks and exception handling logic repeatedly slows down development and increases the chance of errors.
+*   **Cumbersome `try-catch` Blocks**: The standard `try-catch` syntax can disrupt the natural flow of code, making the execution path difficult to follow, especially with asynchronous operations.
 
-## 2. Solving Unity’s “Fake Null” Problem (Safe Extensions)  
-In Unity, destroyed objects are not actual `null` but “fake null,” which breaks pure C# null checks like `is null`. The `.Safe()` extension method perfectly handles this Unity-specific behavior, allowing you to **safely check for null in any situation and avoid NullReferenceExceptions**.
+`MoreAdvancedUnityScripting` provides clear and effective solutions:
 
-## 3. Obstructive error syntax:
-The try-catch syntax can break the natural flow of code and scatter logic, making the execution path difficult to follow
+### 1. Explicit and Reliable Error Handling (Result Pattern)
+By returning a `Result` type, operations that can fail make their outcomes explicit. This forces the developer to handle both success and failure cases, preventing unexpected runtime crashes and making the code's behavior predictable.
 
-## 4. Concise and Consistent Code (Try-Catch Utilities)  
-Wrapping all potentially failing operations—including async ones—with methods like `.ToResult()` removes complex `try-catch` blocks and enforces a consistent error handling style. This **improves code readability and makes maintenance easier**.
+### 2. Solving Unity’s “Fake Null” Problem (Safe Extensions)
+Unity's destroyed objects are not truly `null` and can bypass standard C# null checks like `is null`. The `.Safe()` extension method correctly handles this engine-specific behavior, allowing you to **reliably check for null on any `UnityEngine.Object` and prevent `NullReferenceException`**.
 
-In summary, this package is a powerful tool that **reduces bugs, improves code quality, and makes long-term project management easier**. Its benefits become especially clear in team environments or large, complex Unity projects.
-**MoreAdvancedUnityScripting** is a utility package designed to enhance Unity development with modern C# programming patterns and robust error handling mechanisms. It provides a set of tools that help developers write more reliable, maintainable, and expressive code by implementing functional programming concepts that are commonly used in enterprise-level applications.
+### 3. Concise and Consistent Error Handling
+Utilities like `.ToResult()` wrap potentially failing operations (including async tasks) in a clean and consistent way. This eliminates verbose `try-catch` blocks, enforces a uniform error handling strategy, and makes your code far more readable and maintainable.
 
-The primary reason to use this package is **safety and reliability**. Traditional Unity development often relies on null checks, try-catch blocks scattered throughout the codebase, and inconsistent error handling patterns. This package addresses these issues by providing:
+## Installation
 
-# Installation
-
-**Install this Package**: Add this package using its Git URL in the Package Manager. You will need to create a `package.json` file in the root of your package folder.
+Add the package using its Git URL in the Unity Package Manager:
 
 ```
 https://github.com/youngwoocho02/MoreAdvancedUnityScripting.git
 ```
 
-# Usage Examples
+## Usage Examples
 
-## Result Pattern
-
-The `Result<T>` class provides a type-safe way to handle operations that can succeed or fail:
+### Result Pattern
+The `Result` class provides a type-safe way to handle operations that can succeed or fail.
 
 ```csharp
-// Basic usage
-public Result<int> DivideNumbers(int a, int b)
+// An operation that can fail
+public Result Divide(int a, int b)
 {
     if (b == 0)
     {
-        return Result<int>.Failure(ErrorDetails.ExecutionError);
+        return Result.Failure(new Error("Division by zero."));
     }
     
-    return Result<int>.Success(a / b);
+    return Result.Success(a / b);
 }
 
-
-// Using the result
-var result = DivideNumbers(10, 2);
+// Consuming the result
+var result = Divide(10, 0);
 if (result.IsSuccess)
 {
     Debug.Log($"Result: {result.Value}");
@@ -66,109 +61,83 @@ else
 {
     Debug.LogError($"Error: {result.Error.Message}");
 }
-
 ```
 
-
-
-## Try-Catch Result
-
-The `TryCatchResult` class simplifies exception handling:
+### Simplified Exception Handling
+The `.ToResult()` extension simplifies exception handling by converting exceptions into a `Result` type.
 
 ```csharp
-// Using try-catch
-private async Awaitable SignIn()
+// Before: Using a try-catch block
+private async Awaitable SignInLegacy()
 {
     try
     {
         await AuthenticationService.Instance.SignInAnonymouslyAsync();
+        Debug.Log("Sign-in successful.");
     }
     catch (Exception e)
     {
         Debug.LogError($"Error: {e.Message}");
-        return;
     }
 }
 
-// Using ToResult()
+// After: Using ToResult() for cleaner code
 private async Awaitable SignIn()
 {
     var signInResult = await AuthenticationService.Instance.SignInAnonymouslyAsync().ToResult();
+    
     if (signInResult.IsFailure)
     {
         Debug.LogError($"Error: {signInResult.Error.Message}");
         return;
-    }    
+    }
+
+    Debug.Log("Sign-in successful.");
 }
 ```
 
-## Safe Extensions
-
-The `SafeExtensions` class provides null-safe operations for Unity Objects:
+### Safe Extensions
+The `SafeExtensions` class provides null-safe operations for `UnityEngine.Object` types, correctly handling "fake null" objects.
 
 ```csharp
 [SerializeField] private GameObject serializedPrivateObject;
-private Gameobject privateObject;
+private GameObject privateObject;
 
 private void NullTest()
 {
-    if (serializedPrivateObject == null)
-    {
-        Debug.Log("serializedPrivateObject == null");
-    }
-    if (privateObject == null)
-    {
-        Debug.Log("privateObject == null");
-    }
-    // Result:
-    // serializedPrivateObject == null
-    // privateObject == null
-
+    // The standard 'is null' check fails for unassigned serialized fields
+    // because Unity treats them as "fake null" objects, not true null.
     if (serializedPrivateObject is null)
     {
-        Debug.Log("serializedPrivateObject is null");
+        Debug.Log("This message will NOT appear for an unassigned serialized field.");
     }
-    if (privateObject is null)
-    {
-        Debug.Log("privateObject is null");
-    }
-    // Result:
-    // privateObject is null
 
-    // Not what you want
-
+    // The .Safe() extension correctly identifies both true null and "fake null".
     if (serializedPrivateObject.Safe() is null)
     {
-        Debug.Log("serializedPrivateObject.Safe() is null");
+        Debug.Log("serializedPrivateObject.Safe() is null"); // This works as expected.
     }
     if (privateObject.Safe() is null)
     {
-        Debug.Log("privateObject.Safe() is null");
+        Debug.Log("privateObject.Safe() is null"); // This also works as expected.
     }
-
-    // Result:
-    // privateObject.Safe() is null
-    // privateObject.Safe() is null
-
-    // This is what you want
 }
 
 private void SetActiveIfNotNull()
 {
-    serializedPrivateObject?.SetActive(true);
-    privateObject?.SetActive(true);
-    // This will throw NullReferenceException if serializedPrivateObject is null in inspector
+    // This will throw a NullReferenceException if serializedPrivateObject is unassigned in the inspector.
+    // serializedPrivateObject?.SetActive(true);
 
+    // This is safe. The operation will only be attempted if the object is not null or destroyed.
     serializedPrivateObject.Safe()?.SetActive(true);
     privateObject.Safe()?.SetActive(true);
-    // This will not throw NullReferenceException even if serializedPrivateObject is null in inspector
 }
 ```
 
-# License
+## License
 
 This project is distributed under the MIT License. See the `LICENSE` file for more information.
 
-# Contributing
+## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
