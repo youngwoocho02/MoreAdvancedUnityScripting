@@ -2,7 +2,7 @@
   "name": "com.devbookofarray.more-advanced-unity-scripting",
   "displayName": "More Advanced Unity Scripting",
   "version": "0.1.0",
-  "unity": "6.0.0",
+  "unity": "6.0",
   "description": "An enhanced Unity scripting package that leverages modern C# patterns to prevent null exceptions and help you write more robust code.",
   "keywords": [
     "unity",
