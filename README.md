@@ -32,9 +32,11 @@ The primary reason to use this package is **safety and reliability**. Traditiona
 # Installation
 
 **Install this Package**: Add this package using its Git URL in the Package Manager. You will need to create a `package.json` file in the root of your package folder.
-    ```
-    https://github.com/youngwoocho02/MoreAdvancedUnityScripting.git
-    ```
+
+```
+https://github.com/youngwoocho02/MoreAdvancedUnityScripting.git
+```
+
 # Usage Examples
 
 ## Result Pattern
